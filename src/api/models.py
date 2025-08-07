@@ -78,6 +78,19 @@ class Restaurant(db.Model):
     reservations: Mapped[List['Reservation']] = relationship('Reservation', back_populates='restaurant')
     fans: Mapped[List['User']] = relationship('User', secondary=user_favorite, back_populates='favorites')
 
+    def serialize(self):
+        return {
+            "restaruant_id": self.restaurant_id,
+            "name": self.name,
+            "description": self.description,
+            "adress": self.address,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "owner_id": self.owner_id,
+            "photos": self.photos,
+            "avg_rating": self.avg_rating
+        }
+
 class Dish(db.Model):
     __tablename__ = 'Dish'
     dish_id: Mapped[int] = mapped_column(primary_key=True)
@@ -91,6 +104,16 @@ class Dish(db.Model):
     restaurant: Mapped['Restaurant'] = relationship('Restaurant', back_populates='dishes')
     tags: Mapped[List['Tag']] = relationship('Tag', secondary=dish_tag, back_populates='dishes')
 
+    def serialize(self):
+        return {
+            "dish_id": self.dish_id,
+            "name": self.name,
+            "description": self.description,
+            "price": self.price,
+            "photos": self.photos,
+            "restaurant_id": self.restaurant_id
+        }
+
 class Tag(db.Model):
     __tablename__ = 'Tag'
     tag_id: Mapped[int] = mapped_column(primary_key=True)
@@ -98,6 +121,12 @@ class Tag(db.Model):
 
     #Relacion con dishes
     dishes: Mapped[List['Dish']] = relationship('Dish', secondary=dish_tag, back_populates='tags')
+
+    def serialize(self):
+        return {
+            "tag_id": self.tag_id,
+            "name": self.name
+        }
 
 class Review(db.Model):
     __tablename__ = 'Review'
@@ -112,6 +141,17 @@ class Review(db.Model):
     #Relaciones de uno a muchos
     user: Mapped['User'] = relationship('User', back_populates='reviews')
     restaurant: Mapped['Restaurant'] = relationship('Restaurant', back_populates='reviews')
+
+    def serialize(self):
+        return {
+            "review_id": self.review_id,
+            "rating": self.rating,
+            "comment": self.comment,
+            "photos": self.photos,
+            "restaurant_id": self.restaurant_id,
+            "user_id": self.user_id,
+            "created_at": self.created_at
+        }
 
 class Reservation(db.Model):
     __tablename__ = 'Reservation'
@@ -129,6 +169,18 @@ class Reservation(db.Model):
     restaurant: Mapped['Restaurant'] = relationship('Restaurant', back_populates='reservations')
     payment: Mapped[Optional['Payment']] = relationship('Payment', back_populates='reservation')
 
+    def serialize(self):
+        return {
+            "reservation_id": self.reservation_id,
+            "time": self.time,
+            "guests": self.guests,
+            "special_request": self.special_request,
+            "status": self.status,
+            "user_id": self.user_id,
+            "restaurant_id": self.restaurant_id,
+            "created_at": self.created_at
+        }
+
 class Payment(db.Model):
     __tablename__ = 'Payment'
     payment_id: Mapped[int] = mapped_column(primary_key=True)
@@ -143,3 +195,15 @@ class Payment(db.Model):
     #Relaciones de uno a uno 
     user: Mapped['User'] = relationship('User', back_populates='payment')
     reservation: Mapped['Reservation'] = relationship('Reservation', back_populates='payment')
+
+    def serialize(self):
+        return {
+            "payment_id": self.payment_id,
+            "amount": self.amount,
+            "method": self.method,
+            "status": self.status,
+            "transaction_id": self.transaction_id,
+            "reservation_id": self.reservation_id,
+            "user_id": self.user_id,
+            "created_at": self.created_at
+        }
